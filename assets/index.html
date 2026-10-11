@@ -693,6 +693,10 @@
                         const errorData = await response.json();
                         if (errorData && errorData.message) {
                             errorMsg = errorData.message;
+                        } else if (errorData && errorData.error_message) {
+                            // Kalmia reports the abort reason here; `error` only carries a generic
+                            // protocol string, so prefer the specific message.
+                            errorMsg = errorData.error_message;
                         } else if (errorData && errorData.error) {
                             errorMsg = errorData.error;
                         }
