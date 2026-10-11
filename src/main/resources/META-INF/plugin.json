@@ -1,0 +1,4 @@
+{
+    "name": "quizpass",
+    "entrypoint": "top.lipiston.quizpass.entrypoint.QuizpassBootstrap#init"
+}

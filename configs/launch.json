@@ -1,0 +1,6 @@
+{
+    "print_config_details": true,
+    "entrypoint": [
+        "top.lipiston.quizpass.entrypoint.QuizpassBootstrap#init"
+    ]
+}

@@ -1,0 +1,6 @@
+{
+    "print_config_details": true,
+    "entrypoint": [
+        "quizpass"
+    ]
+}
