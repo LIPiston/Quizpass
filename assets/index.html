@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft 白名单管理</title>
+    <meta name="robots" content="noindex, nofollow">
+    <title>白名单申请 - Quizpass</title>
     <style>
         :root {
             --bg-dark: #1a1a2e;
@@ -13,111 +14,84 @@
             --border-light: #3d3d6b;
             --text-primary: #e0e0e0;
             --text-secondary: #9a9ab0;
+            --text-muted: #6a6a80;
             --error-red: #e74c3c;
+            --error-glow: rgba(231, 76, 60, .3);
             --success-green: #2ecc71;
-            --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.5);
-            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.3);
-            --font-minecraft: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+            --accent: #4caf50;
+            --accent-hover: #45a049;
+            --accent-active: #3d8b40;
+            --accent-glow: rgba(76, 175, 80, .35);
+            --accent-border: #2e7d32;
+            --accent-soft-bg: rgba(76, 175, 80, .08);
+            --accent-soft-border: rgba(76, 175, 80, .35);
+            --accent-soft-text: #a5d6a7;
+            --btn-bg: linear-gradient(145deg, #4caf50, #388e3c);
+            --btn-bg-hover: linear-gradient(145deg, #58bb5c, #43a047);
+            --btn-bg-active: linear-gradient(145deg, #3d8b40, #2e7d32);
+            --btn-shadow: 0 4px 14px rgba(76, 175, 80, .3);
+            --shadow-heavy: 0 18px 44px rgba(0, 0, 0, .55);
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, .35);
         }
 
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: var(--font-minecraft);
-            background-color: var(--bg-dark);
-            background-image:
-                    radial-gradient(ellipse at 20% 50%, rgba(30, 30, 60, 0.6) 0%, transparent 60%),
-                    radial-gradient(ellipse at 80% 50%, rgba(30, 30, 60, 0.6) 0%, transparent 60%),
-                    radial-gradient(ellipse at 50% 20%, rgba(40, 40, 80, 0.4) 0%, transparent 50%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            position: relative;
+            padding: 32px 16px;
+            background:
+                radial-gradient(circle at 50% 0%, #23234a 0%, var(--bg-dark) 45%, #101020 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* Faint horizontal scanlines, echoing the game's menu background. */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image:
-                    repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255, 255, 255, 0.015) 4px, rgba(255, 255, 255, 0.015) 5px),
-                    repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(255, 255, 255, 0.015) 4px, rgba(255, 255, 255, 0.015) 5px);
+            inset: 0;
             pointer-events: none;
-            z-index: 0;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, .015) 0,
+                    rgba(255, 255, 255, .015) 1px,
+                    transparent 1px,
+                    transparent 4px
+                );
         }
 
         .container {
             position: relative;
-            z-index: 1;
             width: 100%;
-            max-width: 500px;
+            max-width: 560px;
+            padding: 40px 36px 36px;
             background: var(--bg-panel);
             border: 3px solid var(--border-dark);
             border-radius: 12px;
-            padding: 40px 36px 36px;
-            box-shadow: var(--shadow-heavy), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
-
-            /* ===== 主题变量（默认：添加模式 / 绿色） ===== */
-            --accent: #4caf50;
-            --accent-hover: #45a049;
-            --accent-active: #3d8b40;
-            --accent-glow: rgba(76, 175, 80, 0.35);
-            --accent-border: #2e7d32;
-            --accent-soft-bg: rgba(76, 175, 80, 0.1);
-            --accent-soft-border: rgba(76, 175, 80, 0.35);
-            --accent-soft-text: #7ddc9f;
-            --btn-bg: linear-gradient(145deg, #4caf50, #388e3c);
-            --btn-bg-hover: linear-gradient(145deg, #56c25a, #43a047);
-            --btn-bg-active: linear-gradient(145deg, #388e3c, #2e7d32);
-            --btn-shadow: rgba(76, 175, 80, 0.3);
-            --btn-shadow-hover: rgba(76, 175, 80, 0.4);
-            --btn-shadow-focus: rgba(76, 175, 80, 0.4);
-            --tab-active-bg: rgba(76, 175, 80, 0.18);
-            --tab-active-border: #4caf50;
-            --tab-active-text: #7ddc9f;
-        }
-
-        /* ===== 移除模式 / 红色主题 ===== */
-        .container.remove-mode {
-            --accent: #e74c3c;
-            --accent-hover: #c0392b;
-            --accent-active: #a93226;
-            --accent-glow: rgba(231, 76, 60, 0.35);
-            --accent-border: #922b21;
-            --accent-soft-bg: rgba(231, 76, 60, 0.1);
-            --accent-soft-border: rgba(231, 76, 60, 0.4);
-            --accent-soft-text: #e88d82;
-            --btn-bg: linear-gradient(145deg, #e74c3c, #c0392b);
-            --btn-bg-hover: linear-gradient(145deg, #ec7063, #d44637);
-            --btn-bg-active: linear-gradient(145deg, #c0392b, #a93226);
-            --btn-shadow: rgba(231, 76, 60, 0.3);
-            --btn-shadow-hover: rgba(231, 76, 60, 0.4);
-            --btn-shadow-focus: rgba(231, 76, 60, 0.4);
-            --tab-active-bg: rgba(231, 76, 60, 0.18);
-            --tab-active-border: #e74c3c;
-            --tab-active-text: #e88d82;
+            box-shadow: var(--shadow-heavy);
+            transition: border-color .4s ease, box-shadow .4s ease;
         }
 
         .container:focus-within {
             border-color: var(--border-light);
-            box-shadow: var(--shadow-heavy), 0 0 20px var(--accent-glow);
         }
 
         .header {
+            margin-bottom: 30px;
             text-align: center;
-            margin-bottom: 28px;
-            position: relative;
-            transition: all 0.4s ease;
         }
 
         .header::after {
@@ -125,427 +99,433 @@
             display: block;
             width: 60px;
             height: 3px;
-            background: var(--accent);
-            margin: 16px auto 0;
+            margin: 18px auto 0;
             border-radius: 2px;
+            background: var(--accent);
             box-shadow: 0 0 12px var(--accent-glow);
-            transition: all 0.4s ease;
         }
 
         .title {
+            margin: 0;
             font-size: 26px;
             font-weight: 700;
-            color: var(--text-primary);
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            line-height: 1.3;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            color: var(--text-primary);
         }
 
         .subtitle {
+            margin: 10px 0 0;
             font-size: 13px;
+            line-height: 1.6;
             color: var(--text-secondary);
-            margin-top: 8px;
-            letter-spacing: 0.5px;
-            font-weight: 400;
-            transition: color 0.4s ease;
         }
 
-        /* ===== 模式切换标签页 ===== */
-        .mode-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 28px;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 10px;
-            padding: 5px;
-            border: 1px solid var(--border-dark);
-            transition: border-color 0.4s ease;
-        }
-
-        .mode-tab {
-            flex: 1;
-            padding: 11px 14px;
-            font-size: 14px;
-            font-family: var(--font-minecraft);
-            font-weight: 600;
-            letter-spacing: 0.6px;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            background: transparent;
-            border: 2px solid transparent;
-            border-radius: 7px;
-            cursor: pointer;
-            outline: none;
-            transition: all 0.35s ease;
-            user-select: none;
-            position: relative;
-        }
-
-        .mode-tab:hover {
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .mode-tab:focus-visible {
-            box-shadow: 0 0 0 3px var(--accent-glow);
-            border-color: var(--accent);
-        }
-
-        .mode-tab.active {
-            color: var(--tab-active-text);
-            background: var(--tab-active-bg);
-            border-color: var(--tab-active-border);
-            box-shadow: 0 0 14px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-        }
-
-        .mode-tab .tab-icon {
-            display: inline-block;
-            margin-right: 6px;
-            font-size: 15px;
-            vertical-align: middle;
-            transition: transform 0.3s ease;
-        }
-
-        .mode-tab.active .tab-icon {
-            transform: scale(1.15);
-        }
-
-        /* ===== 表单 ===== */
         .form-group {
             margin-bottom: 24px;
         }
 
         .label {
             display: block;
+            margin-bottom: 9px;
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            letter-spacing: 0.8px;
+            letter-spacing: .8px;
             text-transform: uppercase;
-            user-select: none;
+            color: var(--text-secondary);
         }
 
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
+        .label .required {
+            color: var(--accent);
         }
 
         .input-field {
             width: 100%;
             padding: 14px 18px;
-            font-size: 16px;
-            font-family: var(--font-minecraft);
-            font-weight: 500;
-            color: var(--text-primary);
-            background-color: var(--bg-input);
+            background: var(--bg-input);
             border: 2px solid var(--border-dark);
             border-radius: 8px;
-            outline: none;
-            transition: all 0.35s ease;
-            letter-spacing: 0.5px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 16px;
             caret-color: var(--accent);
+            outline: none;
+            transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
         }
 
         .input-field::placeholder {
             color: #55556e;
-            font-weight: 400;
-            letter-spacing: 0.3px;
         }
 
         .input-field:hover {
-            border-color: var(--border-light);
-            background-color: #14142a;
+            background: #14142a;
         }
 
         .input-field:focus {
+            background: #12121f;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-glow), 0 0 20px var(--accent-glow);
-            background-color: #12121f;
         }
 
         .input-field.error {
             border-color: var(--error-red);
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.25);
+            box-shadow: 0 0 0 3px var(--error-glow);
         }
 
-        .input-field.error:focus {
+        /* --- 游戏方式: two exclusive cards --- */
+        .auth-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .auth-option {
+            position: relative;
+        }
+
+        /* Visually hidden but focusable, so the native radio keeps arrow-key behaviour. */
+        .auth-option input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .auth-option label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: 2px solid var(--border-dark);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
+        }
+
+        .auth-option label:hover {
+            background: #14142a;
+            border-color: var(--border-light);
+        }
+
+        .auth-option input:checked + label {
+            background: var(--accent-soft-bg);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .auth-option input:focus-visible + label {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        .auth-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .auth-desc {
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--text-secondary);
+        }
+
+        .auth-options.error label {
             border-color: var(--error-red);
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.25);
+        }
+
+        .auth-options.error input:checked + label {
+            border-color: var(--error-red);
+            box-shadow: 0 0 0 3px var(--error-glow);
+        }
+
+        .field-message {
+            margin: 8px 0 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--error-red);
+        }
+
+        .field-message:empty {
+            display: none;
+        }
+
+        .hint {
+            margin: 8px 0 0;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-muted);
         }
 
         .btn-submit {
             width: 100%;
             padding: 15px 20px;
-            font-size: 16px;
-            font-family: var(--font-minecraft);
-            font-weight: 700;
-            color: #ffffff;
+            margin-top: 4px;
             background: var(--btn-bg);
-            border: 2px solid var(--accent-border);
+            border: none;
             border-radius: 8px;
-            cursor: pointer;
-            outline: none;
-            transition: all 0.35s ease;
+            box-shadow: var(--btn-shadow);
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
             letter-spacing: 1.2px;
             text-transform: uppercase;
-            user-select: none;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px var(--btn-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            transition: background .25s ease, transform .15s ease, box-shadow .25s ease;
         }
 
-        .btn-submit:hover {
+        .btn-submit:hover:not(:disabled) {
             background: var(--btn-bg-hover);
-            box-shadow: 0 6px 25px var(--btn-shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
         }
 
-        .btn-submit:active {
+        .btn-submit:active:not(:disabled) {
             background: var(--btn-bg-active);
-            box-shadow: 0 2px 10px var(--btn-shadow), inset 0 2px 4px rgba(0, 0, 0, 0.3);
             transform: translateY(0);
+            box-shadow: inset 0 3px 10px rgba(0, 0, 0, .3);
         }
 
         .btn-submit:disabled {
             background: #3a3a50;
-            border-color: #2a2a40;
-            color: #6a6a80;
-            cursor: not-allowed;
             box-shadow: none;
+            color: var(--text-muted);
+            cursor: not-allowed;
             transform: none;
         }
 
-        .btn-submit:focus-visible {
-            box-shadow: 0 0 0 3px var(--accent-glow), 0 6px 25px var(--btn-shadow-focus);
-        }
-
-        .btn-submit .btn-text {
-            position: relative;
-            z-index: 1;
-        }
-
-        .btn-submit .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #ffffff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .btn-submit.loading .btn-text {
-            display: none;
-        }
-
-        .btn-submit.loading .spinner {
-            display: block;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
         .status-message {
-            margin-top: 20px;
-            padding: 14px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.4px;
             display: none;
-            transition: all 0.35s ease;
-            line-height: 1.5;
+            margin-top: 18px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
             word-break: break-word;
         }
 
         .status-message.visible {
             display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        .status-message.success {
-            background-color: var(--accent-soft-bg);
-            border: 1px solid var(--accent-soft-border);
-            color: var(--accent-soft-text);
-            box-shadow: 0 2px 12px var(--accent-glow);
         }
 
         .status-message.error {
-            background-color: rgba(231, 76, 60, 0.12);
-            border: 1px solid rgba(231, 76, 60, 0.4);
-            color: #e88d82;
-            box-shadow: 0 2px 12px rgba(231, 76, 60, 0.1);
+            background: rgba(231, 76, 60, .1);
+            border: 1px solid rgba(231, 76, 60, .4);
+            color: #ff8a7a;
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .status-message.success {
+            background: var(--accent-soft-bg);
+            border: 1px solid var(--accent-soft-border);
+            color: var(--accent-soft-text);
+        }
+
+        /* --- success view --- */
+        .success-view {
+            text-align: center;
+        }
+
+        .success-view[hidden] {
+            display: none;
+        }
+
+        .success-icon {
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-soft-bg);
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 28px var(--accent-glow);
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .success-title {
+            margin: 0;
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent-soft-text);
+        }
+
+        .success-detail {
+            margin: 16px 0 0;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .success-detail strong {
+            color: var(--text-primary);
+        }
+
+        .success-actions {
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            padding: 12px 26px;
+            background: transparent;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color .25s ease, color .25s ease, background-color .25s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, .04);
+            border-color: var(--accent);
+            color: var(--text-primary);
         }
 
         .footer-note {
-            text-align: center;
-            margin-top: 24px;
+            margin: 26px 0 0;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-dark);
             font-size: 12px;
-            color: #55556e;
-            letter-spacing: 0.3px;
-            user-select: none;
+            line-height: 1.7;
+            color: var(--text-muted);
+            text-align: center;
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 480px) {
             .container {
-                padding: 28px 20px 24px;
-                border-radius: 10px;
+                padding: 30px 22px 26px;
             }
+
             .title {
                 font-size: 21px;
             }
-            .input-field {
-                padding: 12px 15px;
-                font-size: 15px;
-            }
-            .btn-submit {
-                padding: 13px 16px;
-                font-size: 15px;
-            }
-            .mode-tab {
-                padding: 9px 10px;
-                font-size: 12px;
-                letter-spacing: 0.3px;
-            }
-            .mode-tab .tab-icon {
-                margin-right: 3px;
-                font-size: 13px;
+
+            .auth-options {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-
-<div class="container" id="mainContainer">
+<div class="container">
     <div class="header">
-        <h1 class="title">白名单管理</h1>
-        <p class="subtitle" id="subtitleText">添加玩家至 Minecraft 服务器白名单</p>
+        <h1 class="title">白名单申请</h1>
+        <p class="subtitle">填写下列信息即可申请加入服务器白名单</p>
     </div>
 
-    <!-- 模式切换标签页 -->
-    <div class="mode-tabs" role="tablist" aria-label="白名单操作模式">
-        <button
-                type="button"
-                class="mode-tab active"
-                id="tabAdd"
-                role="tab"
-                aria-selected="true"
-                aria-controls="whitelistForm"
-                data-mode="add"
-        >
-            <span class="tab-icon">➕</span>添加
-        </button>
-        <button
-                type="button"
-                class="mode-tab"
-                id="tabRemove"
-                role="tab"
-                aria-selected="false"
-                aria-controls="whitelistForm"
-                data-mode="remove"
-        >
-            <span class="tab-icon">➖</span>移除
-        </button>
-    </div>
-
-    <form id="whitelistForm" novalidate autocomplete="off">
-        <div class="form-group">
-            <label class="label" for="playerName" id="inputLabel">玩家名称</label>
-            <div class="input-wrapper">
+    <div id="formView">
+        <form id="signupForm" novalidate>
+            <div class="form-group">
+                <label class="label" for="playerName">游戏内名称 <span class="required">*</span></label>
                 <input
-                        type="text"
-                        id="playerName"
-                        class="input-field"
-                        placeholder="请输入 Minecraft 玩家名称"
-                        required
-                        maxlength="16"
-                        minlength="1"
-                        autofocus
-                />
+                    class="input-field"
+                    id="playerName"
+                    name="username"
+                    type="text"
+                    placeholder="请输入游戏内名称"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                    maxlength="16"
+                    required
+                    aria-describedby="nameMessage">
+                <p class="field-message" id="nameMessage" role="alert"></p>
             </div>
+
+            <div class="form-group">
+                <span class="label" id="accountLabel">游戏方式 <span class="required">*</span></span>
+                <div class="auth-options" id="accountOptions" role="radiogroup" aria-labelledby="accountLabel">
+                    <div class="auth-option">
+                        <input type="radio" id="accountPremium" name="account" value="premium">
+                        <label for="accountPremium">
+                            <span class="auth-name">正版</span>
+                            <span class="auth-desc">Mojang / 微软账号</span>
+                        </label>
+                    </div>
+                    <div class="auth-option">
+                        <input type="radio" id="accountSkin" name="account" value="skin">
+                        <label for="accountSkin">
+                            <span class="auth-name">皮肤站</span>
+                            <span class="auth-desc">第三方皮肤站登录</span>
+                        </label>
+                    </div>
+                </div>
+                <p class="field-message" id="accountMessage" role="alert"></p>
+            </div>
+
+            <div class="form-group">
+                <label class="label" for="playerQq">QQ 号 <span class="required">*</span></label>
+                <input
+                    class="input-field"
+                    id="playerQq"
+                    name="qq"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="请输入 QQ 号，便于管理员联系你"
+                    autocomplete="off"
+                    maxlength="11"
+                    required
+                    aria-describedby="qqMessage">
+                <p class="field-message" id="qqMessage" role="alert"></p>
+            </div>
+
+            <button class="btn-submit" id="submitBtn" type="submit">
+                <span id="btnText">提交申请</span>
+            </button>
+        </form>
+
+        <div class="status-message" id="statusMessage" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="success-view" id="successView" hidden>
+        <div class="success-icon" aria-hidden="true">&#10003;</div>
+        <h2 class="success-title" id="successTitle">恭喜，白名单已添加</h2>
+        <p class="success-detail">
+            玩家 <strong id="successPlayer"></strong> 已加入服务器白名单，现在可以进入服务器了。
+        </p>
+        <div class="success-actions">
+            <button class="btn-secondary" id="againBtn" type="button">再申请一位</button>
         </div>
+    </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">
-            <span class="btn-text" id="btnText">确认添加</span>
-            <span class="spinner"></span>
-        </button>
-
-        <div class="status-message" id="statusMessage"></div>
-    </form>
-
-    <p class="footer-note">Quizpass</p>
+    <p class="footer-note">提交后由服务器自动处理，通常数秒内生效。<br>如长时间未生效，请联系管理员。</p>
 </div>
 
 <script>
     (function () {
-        const container = document.getElementById('mainContainer');
-        const form = document.getElementById('whitelistForm');
-        const input = document.getElementById('playerName');
-        const submitBtn = document.getElementById('submitBtn');
-        const statusMessage = document.getElementById('statusMessage');
-        const tabAdd = document.getElementById('tabAdd');
-        const tabRemove = document.getElementById('tabRemove');
-        const subtitleText = document.getElementById('subtitleText');
-        const inputLabel = document.getElementById('inputLabel');
-        const btnText = document.getElementById('btnText');
+        'use strict';
 
-        const API_ENDPOINTS = {
-            add: '/api/add-whitelist',
-            remove: '/api/remove-whitelist'
-        };
+        var ENDPOINT = '/api/add-whitelist';
+        var NAME_PATTERN = /^[A-Za-z0-9_]{3,16}$/;
+        var QQ_PATTERN = /^[1-9][0-9]{4,10}$/;
 
-        const UI_TEXT = {
-            add: {
-                subtitle: '添加玩家至 Minecraft 服务器白名单',
-                btnText: '确认添加',
-                inputLabel: '玩家名称',
-                placeholder: '请输入 Minecraft 玩家名称',
-                successDefault: function (name) {
-                    return '玩家 "' + name + '" 已成功添加至白名单。';
-                },
-                errorDefault: function (status) {
-                    return '添加失败，服务器返回状态码 ' + status + '。';
-                },
-                networkError: '网络错误，无法连接到服务器。请检查网络后重试。'
-            },
-            remove: {
-                subtitle: '从 Minecraft 服务器白名单移除玩家',
-                btnText: '确认移除',
-                inputLabel: '玩家名称',
-                placeholder: '请输入要移除的玩家名称',
-                successDefault: function (name) {
-                    return '玩家 "' + name + '" 已成功从白名单移除。';
-                },
-                errorDefault: function (status) {
-                    return '移除失败，服务器返回状态码 ' + status + '。';
-                },
-                networkError: '网络错误，无法连接到服务器。请检查网络后重试。'
-            }
-        };
+        var formView = document.getElementById('formView');
+        var form = document.getElementById('signupForm');
+        var nameInput = document.getElementById('playerName');
+        var qqInput = document.getElementById('playerQq');
+        var accountOptions = document.getElementById('accountOptions');
+        var submitBtn = document.getElementById('submitBtn');
+        var btnText = document.getElementById('btnText');
+        var statusMessage = document.getElementById('statusMessage');
+        var successView = document.getElementById('successView');
+        var successPlayer = document.getElementById('successPlayer');
+        var againBtn = document.getElementById('againBtn');
 
-        let currentMode = 'add';
-        let isSubmitting = false;
-        let statusTimeout = null;
+        var nameMessage = document.getElementById('nameMessage');
+        var accountMessage = document.getElementById('accountMessage');
+        var qqMessage = document.getElementById('qqMessage');
+
+        var isSubmitting = false;
+        var statusTimeout = null;
 
         function showStatus(message, type) {
             if (statusTimeout) {
@@ -559,7 +539,7 @@
             statusTimeout = setTimeout(function () {
                 statusMessage.className = 'status-message';
                 statusTimeout = null;
-            }, 5000);
+            }, 8000);
         }
 
         function hideStatus() {
@@ -573,78 +553,111 @@
         function setLoading(loading) {
             isSubmitting = loading;
             submitBtn.disabled = loading;
-            if (loading) {
-                submitBtn.classList.add('loading');
-            } else {
-                submitBtn.classList.remove('loading');
+            btnText.textContent = loading ? '提交中…' : '提交申请';
+        }
+
+        function clearErrors() {
+            nameInput.classList.remove('error');
+            accountOptions.classList.remove('error');
+            qqInput.classList.remove('error');
+            nameMessage.textContent = '';
+            accountMessage.textContent = '';
+            qqMessage.textContent = '';
+        }
+
+        function setFieldError(field, message) {
+            if (field === 'name') {
+                nameInput.classList.add('error');
+                nameMessage.textContent = message;
+            } else if (field === 'account') {
+                accountOptions.classList.add('error');
+                accountMessage.textContent = message;
+            } else if (field === 'qq') {
+                qqInput.classList.add('error');
+                qqMessage.textContent = message;
             }
         }
 
-        function clearInputError() {
-            input.classList.remove('error');
+        function selectedAccount() {
+            var checked = form.querySelector('input[name="account"]:checked');
+            return checked ? checked.value : '';
         }
 
-        function setInputError() {
-            input.classList.add('error');
-            input.focus();
-            input.addEventListener('input', function onInput() {
-                clearInputError();
-                input.removeEventListener('input', onInput);
-            }, { once: true });
+        /** Mirrors the server-side validation so most problems never reach the network. */
+        function validate() {
+            clearErrors();
+
+            var name = nameInput.value.trim();
+            var account = selectedAccount();
+            var qq = qqInput.value.trim();
+            var ok = true;
+            var focusTarget = null;
+
+            if (!name) {
+                setFieldError('name', '请输入游戏内名称。');
+                ok = false;
+                focusTarget = focusTarget || nameInput;
+            } else if (!NAME_PATTERN.test(name)) {
+                setFieldError('name', '名称需为 3-16 位字母、数字或下划线。');
+                ok = false;
+                focusTarget = focusTarget || nameInput;
+            }
+
+            if (!account) {
+                setFieldError('account', '请选择游戏方式。');
+                ok = false;
+                focusTarget = focusTarget || form.querySelector('input[name="account"]');
+            }
+
+            if (!qq) {
+                setFieldError('qq', '请输入 QQ 号。');
+                ok = false;
+                focusTarget = focusTarget || qqInput;
+            } else if (!QQ_PATTERN.test(qq)) {
+                setFieldError('qq', 'QQ 号需为 5-11 位数字。');
+                ok = false;
+                focusTarget = focusTarget || qqInput;
+            }
+
+            if (focusTarget && focusTarget.focus) {
+                focusTarget.focus();
+            }
+
+            return ok;
         }
 
-        function isValidPlayerName(name) {
-            const trimmed = name.trim();
-            if (trimmed.length < 3 || trimmed.length > 16) {
-                return false;
-            }
-            const regex = /^[A-Za-z0-9_]+$/;
-            return regex.test(trimmed);
-        }
-
-        function switchMode(mode) {
-            if (mode === currentMode) {
-                return;
-            }
-            if (isSubmitting) {
-                return;
-            }
-
-            currentMode = mode;
-
-            container.classList.toggle('remove-mode', mode === 'remove');
-
-            tabAdd.classList.toggle('active', mode === 'add');
-            tabRemove.classList.toggle('active', mode === 'remove');
-            tabAdd.setAttribute('aria-selected', mode === 'add');
-            tabRemove.setAttribute('aria-selected', mode === 'remove');
-
-            const text = UI_TEXT[mode];
-            subtitleText.textContent = text.subtitle;
-            btnText.textContent = text.btnText;
-            inputLabel.textContent = text.inputLabel;
-            input.placeholder = text.placeholder;
-
-            input.value = '';
-            clearInputError();
+        function showSuccess(player) {
+            successPlayer.textContent = player;
+            formView.hidden = true;
+            successView.hidden = false;
             hideStatus();
-
-            input.focus();
+            window.scrollTo(0, 0);
+            againBtn.focus();
         }
 
-        async function postToServer(playerName) {
-            const endpoint = API_ENDPOINTS[currentMode];
-            return await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ username: playerName })
+        function resetForm() {
+            successView.hidden = true;
+            formView.hidden = false;
+            form.reset();
+            clearErrors();
+            hideStatus();
+            setLoading(false);
+            nameInput.focus();
+        }
+
+        /** Reads the most specific explanation Kalmia returned for a failed request. */
+        function errorMessage(response, fallback) {
+            return response.json().then(function (data) {
+                if (!data || typeof data !== 'object') {
+                    return fallback;
+                }
+                return data.message || data.error_message || data.error || fallback;
+            }).catch(function () {
+                return fallback;
             });
         }
 
-        async function handleSubmit(event) {
+        function handleSubmit(event) {
             event.preventDefault();
 
             if (isSubmitting) {
@@ -652,116 +665,97 @@
             }
 
             hideStatus();
-            clearInputError();
 
-            const rawName = input.value;
-            const playerName = rawName.trim();
-            const text = UI_TEXT[currentMode];
-
-            if (!playerName) {
-                showStatus('请输入玩家名称。', 'error');
-                setInputError();
+            if (!validate()) {
+                var hasMessage = nameMessage.textContent || accountMessage.textContent || qqMessage.textContent;
+                if (hasMessage) {
+                    showStatus('请检查上方标红的字段后重新提交。', 'error');
+                }
                 return;
             }
 
-            if (!isValidPlayerName(playerName)) {
-                showStatus('玩家名称格式无效，请使用 3-16 个字母、数字或下划线。', 'error');
-                setInputError();
-                return;
-            }
+            var payload = {
+                username: nameInput.value.trim(),
+                account: selectedAccount(),
+                qq: qqInput.value.trim()
+            };
 
             setLoading(true);
 
-            try {
-                const response = await postToServer(playerName);
-
+            fetch(ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }).then(function (response) {
                 if (response.ok) {
-                    let responseData = null;
-                    try {
-                        responseData = await response.json();
-                    } catch (e) {
-
-                    }
-                    const successMsg = (responseData && responseData.message) ||
-                        text.successDefault(playerName);
-                    showStatus(successMsg, 'success');
-                    input.value = '';
-                    input.focus();
-                } else {
-                    let errorMsg = text.errorDefault(response.status);
-                    try {
-                        const errorData = await response.json();
-                        if (errorData && errorData.message) {
-                            errorMsg = errorData.message;
-                        } else if (errorData && errorData.error_message) {
-                            // Kalmia reports the abort reason here; `error` only carries a generic
-                            // protocol string, so prefer the specific message.
-                            errorMsg = errorData.error_message;
-                        } else if (errorData && errorData.error) {
-                            errorMsg = errorData.error;
-                        }
-                    } catch (e) {
-
-                    }
-                    showStatus(errorMsg, 'error');
+                    showSuccess(payload.username);
+                    return null;
                 }
-            } catch (networkError) {
-                showStatus(text.networkError, 'error');
-            } finally {
+
+                var fallback;
+                if (response.status === 400) {
+                    fallback = '提交的信息有误，请检查后重试。';
+                } else if (response.status === 503) {
+                    fallback = '服务器暂时无法处理白名单请求，请稍后重试。';
+                } else {
+                    fallback = '提交失败，服务器返回状态码 ' + response.status + '。';
+                }
+
+                return errorMessage(response, fallback).then(function (message) {
+                    showStatus(message, 'error');
+                });
+            }).catch(function () {
+                showStatus('网络错误，无法连接到服务器。请检查网络后重试。', 'error');
+            }).then(function () {
                 setLoading(false);
-            }
+            });
         }
 
-        function handleInputKeydown(event) {
-            if (event.key === 'Escape') {
-                input.value = '';
-                clearInputError();
+        /** Typing again clears the previous complaint about that field. */
+        function clearOnInput(input, field) {
+            input.addEventListener('input', function () {
+                input.classList.remove('error');
+                if (field === 'name') {
+                    nameMessage.textContent = '';
+                } else {
+                    qqMessage.textContent = '';
+                }
                 hideStatus();
-                input.focus();
-            }
+            });
         }
 
-        tabAdd.addEventListener('click', function () {
-            switchMode('add');
+        clearOnInput(nameInput, 'name');
+        clearOnInput(qqInput, 'qq');
+
+        accountOptions.addEventListener('change', function () {
+            accountOptions.classList.remove('error');
+            accountMessage.textContent = '';
+            hideStatus();
         });
 
-        tabRemove.addEventListener('click', function () {
-            switchMode('remove');
-        });
-
-        tabAdd.addEventListener('keydown', function (event) {
-            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        nameInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
                 event.preventDefault();
-                switchMode('remove');
-                tabRemove.focus();
+                qqInput.focus();
             }
         });
 
-        tabRemove.addEventListener('keydown', function (event) {
-            if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-                event.preventDefault();
-                switchMode('add');
-                tabAdd.focus();
+        qqInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                qqInput.value = '';
+                clearErrors();
+                hideStatus();
             }
         });
 
         form.addEventListener('submit', handleSubmit);
-
-        input.addEventListener('keydown', handleInputKeydown);
-
-        input.addEventListener('input', function () {
-            clearInputError();
-            if (statusMessage.classList.contains('visible')) {
-                hideStatus();
-            }
-        });
-
-        window.addEventListener('load', function () {
-            input.focus();
-        });
+        againBtn.addEventListener('click', resetForm);
 
         if (document.hasFocus && document.hasFocus()) {
-            input.focus();
+            nameInput.focus();
         }
     })();
 </script>
