@@ -44,11 +44,11 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-### Local runtime / test harness ###
-# Deployed plugin jar produced by `./gradlew build` and copied into the local
-# Kalmia test server. Rebuild it instead of committing it.
-test/libs/
-# Kalmia server launcher and its runtime output.
-test/Kalmia-*.jar
-test/logs/
+### Local runtime ###
+# Scratch Kalmia working directory used to run the plugin locally: the Kalmia
+# launcher jar, the deployed plugin jar and the runtime output all live here.
+# Rebuild the plugin instead of committing it, and keep the whole directory out
+# of version control.
+test/
+# Runtime output when running Kalmia from the repository root instead.
 logs/
