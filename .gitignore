@@ -52,3 +52,7 @@ bin/
 test/
 # Runtime output when running Kalmia from the repository root instead.
 logs/
+# Generated on first start and never a source file: it holds the local RCON
+# password and notification credentials. Only this generated file is ignored;
+# the other files in configs/ are tracked templates.
+configs/quizpass.json
