@@ -3,6 +3,7 @@ package top.lipiston.quizpass.config
 import com.github.cao.awa.cason.array.JSONArray
 import com.github.cao.awa.cason.obj.JSONObject
 import com.github.kusa233.kalmia.config.KalmiaConfig
+import top.lipiston.quizpass.notify.Notification
 import java.io.File
 
 /**
@@ -122,6 +123,52 @@ class QuizpassConfig : KalmiaConfig() {
     var qqbotAccessToken: String = DEFAULT_QQBOT_ACCESS_TOKEN
         private set
 
+    // ---------------------------------------------------------------------------------------
+    // In-game broadcast. Separate from [notify] on purpose: this one goes to the Minecraft
+    // server itself (via `/say`), so it lands in the server console log and is visible to every
+    // online player, whereas notifications go to the administrators. Off by default, so an
+    // untouched install stays exactly as before.
+    // ---------------------------------------------------------------------------------------
+
+    /** Master switch for the in-game `/say` broadcast. */
+    var broadcastEnabled: Boolean = DEFAULT_BROADCAST_ENABLED
+        private set
+
+    /** Broadcast when a player is added to the whitelist. */
+    var broadcastOnAdd: Boolean = DEFAULT_BROADCAST_ON_ADD
+        private set
+
+    /** Broadcast when a player is removed from the whitelist. */
+    var broadcastOnRemove: Boolean = DEFAULT_BROADCAST_ON_REMOVE
+        private set
+
+    /** Supports the `{player}` and `{event}` placeholders. */
+    var broadcastAddMessage: String = DEFAULT_BROADCAST_ADD_MESSAGE
+        private set
+
+    var broadcastRemoveMessage: String = DEFAULT_BROADCAST_REMOVE_MESSAGE
+        private set
+
+    /**
+     * The line to `/say` for [event], with the placeholders substituted.
+     *
+     * Returns `null` when the broadcast is switched off, when this event is not enabled, or when
+     * the template is blank — a blank message would otherwise turn into a bare `/say` that only
+     * prints an empty line.
+     */
+    fun broadcastMessage(event: String, player: String): String? {
+        if (!broadcastEnabled) return null
+        if (event == Notification.EVENT_ADD && !broadcastOnAdd) return null
+        if (event == Notification.EVENT_REMOVE && !broadcastOnRemove) return null
+
+        val template = if (event == Notification.EVENT_REMOVE) broadcastRemoveMessage else broadcastAddMessage
+        if (template.isBlank()) return null
+
+        return template
+            .replace("{player}", player)
+            .replace("{event}", event)
+    }
+
     /** True when at least one channel is switched on, used to skip building notifications. */
     val anyChannelEnabled: Boolean
         get() = (emailEnabled && emailTo.isNotEmpty()) || callbackEnabled || qqbotEnabled
@@ -138,6 +185,14 @@ class QuizpassConfig : KalmiaConfig() {
                 .put("download", assetsDownload)
                 .put("url", assetsUrl)
                 .put("path", assetsPath)
+        )
+        .put(
+            "broadcast", JSONObject()
+                .put("enabled", broadcastEnabled)
+                .put("onAdd", broadcastOnAdd)
+                .put("onRemove", broadcastOnRemove)
+                .put("addMessage", broadcastAddMessage)
+                .put("removeMessage", broadcastRemoveMessage)
         )
         .put(
             "notify", JSONObject()
@@ -195,6 +250,12 @@ class QuizpassConfig : KalmiaConfig() {
         const val DEFAULT_NOTIFY_ON_REMOVE = true
         const val DEFAULT_NOTIFY_TIMEOUT_MILLIS = 10_000
 
+        const val DEFAULT_BROADCAST_ENABLED = false
+        const val DEFAULT_BROADCAST_ON_ADD = true
+        const val DEFAULT_BROADCAST_ON_REMOVE = true
+        const val DEFAULT_BROADCAST_ADD_MESSAGE = "[quizpass] {player} 已被添加到白名单"
+        const val DEFAULT_BROADCAST_REMOVE_MESSAGE = "[quizpass] {player} 已被移出白名单"
+
         const val DEFAULT_EMAIL_ENABLED = false
         const val DEFAULT_EMAIL_HOST = "smtp.example.com"
         const val DEFAULT_EMAIL_PORT = 465
@@ -230,6 +291,13 @@ class QuizpassConfig : KalmiaConfig() {
                 ifBoolean("download") { assetsDownload = this }
                 ifString("url") { assetsUrl = this }
                 ifString("path") { assetsPath = this }
+            }
+            ifJSON("broadcast") {
+                ifBoolean("enabled") { broadcastEnabled = this }
+                ifBoolean("onAdd") { broadcastOnAdd = this }
+                ifBoolean("onRemove") { broadcastOnRemove = this }
+                ifString("addMessage") { broadcastAddMessage = this }
+                ifString("removeMessage") { broadcastRemoveMessage = this }
             }
             ifJSON("notify") {
                 ifBoolean("enabled") { notifyEnabled = this }

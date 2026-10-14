@@ -127,6 +127,8 @@ object QuizpassBootstrap {
             abort(context, HttpResponseStatus.SERVICE_UNAVAILABLE, RCON_NOT_READY_MESSAGE)
         }
 
+        broadcastWhitelistChange(config, rcon, Notification.EVENT_ADD, signup.player)
+
         notifyAdministrators(
             context = context,
             config = config,
@@ -187,7 +189,33 @@ object QuizpassBootstrap {
             abort(context, HttpResponseStatus.SERVICE_UNAVAILABLE, RCON_NOT_READY_MESSAGE)
         }
 
+        broadcastWhitelistChange(config, rcon, event, name)
+
         notifyAdministrators(context, config, event, name, rconCommand)
+    }
+
+    /**
+     * Prints a `/say` line for the whitelist change, so the event shows up in the Minecraft
+     * server console and to every online player.
+     *
+     * Deliberately best-effort and after the whitelist command: the whitelist change has already
+     * been handed to the server, so a broadcast that cannot be sent — the connection dropped in
+     * between, or the template is blank — must not turn the player's successful request into an
+     * error. `/say` is used rather than `/tellraw` because only `/say` writes to the server
+     * console log; the trade-off is that `/say` carries no colour.
+     */
+    private fun broadcastWhitelistChange(
+        config: QuizpassConfig,
+        rcon: RconConnection,
+        event: String,
+        name: String,
+    ) {
+        val message = config.broadcastMessage(event, name) ?: return
+
+        val command = "/say $message"
+        if (!rcon.sendCommand(command)) {
+            LOGGER.warn("Skipped in-game broadcast for {}: RCON is not ready", name)
+        }
     }
 
     private fun notifyAdministrators(

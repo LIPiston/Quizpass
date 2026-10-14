@@ -27,6 +27,7 @@ cp build/libs/Quizpass-1.0-SNAPSHOT.jar test/libs/
 | RCON 连上了 | `RCON ready: authenticated successfully` |
 | 命令发出去了 | `Sending RCON command (requestId=N): /whitelist add <name>` 与 `Command response: ...` |
 | 通知发出去了 | 线程名为 `Quizpass-Notifier` 的 `Sent add notification for <name> via <channel>` / `Failed to send ...` |
+| 广播发出去了 | `Sending RCON command (requestId=N): /say [quizpass] <name> 已被添加到白名单`，随后服务端日志出现 `[Server thread/INFO]: [Not Secure] [Rcon] [quizpass] <name> 已被添加到白名单` |
 | reload 有没有泄漏 | 连续 reload 后线程数不增长：日志里每次都应出现 `Stopping RCON connection`，且 `Quizpass-Notifier` 始终只有一条 |
 
 改申请页面（`assets/index.html`）时**不需要**重编译插件：把 `assets.download` 设为 `false` 直接改本地文件，或者把 `assets.url` 指到自己的地址（例如本地起个静态服务器），启动时就会拉下来。
@@ -41,6 +42,7 @@ cp build/libs/Quizpass-1.0-SNAPSHOT.jar test/libs/
 - **来源地址依赖反向代理**：Kalmia 不向插件暴露客户端 socket 地址，未经过反向代理时通知里的来源地址只会是 `unknown`（见 [管理员通知](notifications.md#管理员通知)）
 - **`/api/remove-whitelist` 没有任何鉴权**：页面上已经不提供移除入口，但这个接口本身仍然可达——任何能访问到 12345 端口的人都可以 POST 它把玩家移出白名单，插件不校验来源、也没有 token。**部署到公网时必须自己在反向代理层限制该路径**（例如只允许内网、加 Basic Auth，或干脆把它挡掉）；申请接口 `/api/add-whitelist` 则有意保持公开，因为玩家本来就要用
 - **申请接口没有频率限制**：插件不做限流，任何人可以反复提交。要防刷需要在反向代理或 WAF 层处理
+- **命令是「发出即成功」的**：`RconConnection.sendCommand()` 把帧写进连接就返回 `true`，不等服务端回执。正常情况下没有任何问题，但若服务端在读命令时**主动断开 RCON 连接**（实测：短时间内连发若干条 `whitelist add <无法被 Mojang 解析的名字>` 时，原版服务端会因阻塞的档案查询而掐断连接），那条命令可能已丢失，而接口仍返回了 `200`。这类失败只在插件日志里表现为 `RCON connection lost: socket closed by peer` 加一次自动重连。玩家逐个提交（人间隔）时未观察到该现象
 - **无 License**：仓库暂未附许可证
 
 ## 手动验证
@@ -63,3 +65,7 @@ cp build/libs/Quizpass-1.0-SNAPSHOT.jar test/libs/
 14. **按事件开关**：设 `notify.onRemove: false`，移除白名单时不应发出通知，而新增仍应发出
 15. **通知不拖慢接口**：把回调指向一个响应很慢（或只连不答）的地址，接口仍应**立刻**返回 `200`，而不是等超时
 16. **reload 后通知仍可用**：`reload` 后再提交一次，三个渠道都应继续送达；连续 reload 数次后 `Quizpass-Notifier` 线程始终只有一条
+17. **广播默认关闭**：默认配置下提交申请，服务端控制台**不应**出现 `[Rcon] [quizpass] ...` 这一行
+18. **广播生效**：设 `broadcast.enabled: true`，提交申请，服务端控制台出现 `[Server thread/INFO]: [Not Secure] [Rcon] [quizpass] <name> 已被添加到白名单`，且在线玩家能在聊天栏看到同一条纯文本消息（用真实客户端确认，例如连接一个 1.21.11 客户端）
+19. **广播按事件开关**：设 `broadcast.onRemove: false`，通过 `/api/remove-whitelist` 移除玩家时**不应**出现广播行，而新增仍应出现
+20. **广播不拖累接口**：广播是 `/whitelist` 命令之后的尽力而为动作，RCON 正常时接口仍返回 `200`，玩家侧响应不因 `/say` 而变慢；RCON 恰好断开时申请仍返回成功，插件日志只多一条广播相关的 WARN
